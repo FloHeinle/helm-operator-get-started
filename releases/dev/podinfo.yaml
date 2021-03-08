@@ -16,7 +16,7 @@ spec:
   values:
     image:
       repository: floheinle/podinfo
-      tag: dev-szvlossu
+      tag: dev-xg8a3e1m
     replicaCount: 1
     hpa:
       enabled: false
