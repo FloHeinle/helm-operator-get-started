@@ -32,7 +32,7 @@ In order to apply the GitOps pipeline model to Kubernetes you need three things:
 
 I will be using GitHub to host the config repo, Docker Hub as the container registry and Flux as the GitOps Kubernetes Operator.
 
-![gitops](https://github.com/FloHeinle/helm-operator-get-started/blob/master/diagrams/flux-helm-operator-registry.png)
+![gitops](https://github.com/floheinle/helm-operator-get-started/blob/master/diagrams/flux-helm-operator-registry.png)
 
 ### Prerequisites
 
@@ -61,7 +61,7 @@ On GitHub, fork this repository and clone it locally
 (replace `fluxcd` with your GitHub username): 
 
 ```sh
-git clone https://github.com/FloHeinle/helm-operator-get-started
+git clone https://github.com/floheinle/helm-operator-get-started
 cd helm-operator-get-started
 ```
 
@@ -85,7 +85,7 @@ Install Flux by specifying your fork URL (replace `fluxcd` with your GitHub user
 ```bash
 helm upgrade -i flux fluxcd/flux --wait \
 --namespace fluxcd \
---set git.url=git@github.com:FloHeinle/helm-operator-get-started
+--set git.url=git@github.com:floheinle/helm-operator-get-started
 ```
 
 Install the `HelmRelease` Kubernetes custom resource definition:
@@ -146,7 +146,7 @@ The config repo has the following structure:
         └── podinfo.yaml
 ```
 
-I will be using [podinfo](https://github.com/FloHeinle/podinfo) to demonstrate a full CI/CD pipeline including promoting releases between environments.
+I will be using [podinfo](https://github.com/floheinle/podinfo) to demonstrate a full CI/CD pipeline including promoting releases between environments.
 
 I'm assuming the following Git branching model:
 * dev branch (feature-ready state)
@@ -166,7 +166,7 @@ The *ci-mock.sh* script does the following:
 Let's create an image corresponding to the `dev` branch (replace `stefanprodan` with your Docker Hub username):
 
 ```
-$ cd hack && ./ci-mock.sh -r FloHeinle/podinfo -b dev
+$ cd hack && ./ci-mock.sh -r floheinle/podinfo -b dev
 
 Sending build context to Docker daemon  4.096kB
 Step 1/15 : FROM golang:1.13 as builder
@@ -178,8 +178,8 @@ Step 12/15 : COPY --from=builder /go/src/github.com/stefanprodan/k8s-podinfo/pod
 Step 15/15 : CMD ["./podinfo"]
 ....
 Successfully built 71bee4549fb2
-Successfully tagged FloHeinle/podinfo:dev-kb9lm91e
-The push refers to repository [docker.io/FloHeinle/podinfo]
+Successfully tagged floheinle/podinfo:dev-kb9lm91e
+The push refers to repository [docker.io/floheinle/podinfo]
 36ced78d2ca2: Pushed
 ```
 
@@ -199,12 +199,12 @@ metadata:
 spec:
   releaseName: podinfo-dev
   chart:
-    git: git@github.com:FloHeinle/helm-operator-get-started
+    git: git@github.com:floheinle/helm-operator-get-started
     path: charts/podinfo
     ref: master
   values:
     image:
-      repository: FloHeinle/podinfo
+      repository: floheinle/podinfo
       tag: dev-kb9lm91e
     replicaCount: 1
 ```
@@ -255,10 +255,10 @@ I would create a release candidate by merging the podinfo code from `dev` into t
 The CI would kick in and publish a new image:
 
 ```bash
-$ cd hack && ./ci-mock.sh -r FloHeinle/podinfo -b stg
+$ cd hack && ./ci-mock.sh -r floheinle/podinfo -b stg
 
-Successfully tagged FloHeinle/podinfo:stg-9ij63o4c
-The push refers to repository [docker.io/FloHeinle/podinfo]
+Successfully tagged floheinle/podinfo:stg-9ij63o4c
+The push refers to repository [docker.io/floheinle/podinfo]
 8f21c3669055: Pushed
 ```
 
@@ -277,12 +277,12 @@ metadata:
 spec:
   releaseName: podinfo-rc
   chart:
-    git: git@github.com:FloHeinle/helm-operator-get-started
+    git: git@github.com:floheinle/helm-operator-get-started
     path: charts/podinfo
     ref: master
   values:
     image:
-      repository: FloHeinle/podinfo
+      repository: floheinle/podinfo
       tag: stg-9ij63o4c
     replicaCount: 2
     hpa:
@@ -300,7 +300,7 @@ If I want to create a new environment, let's say for hotfixes testing, I would d
 * create a dir `releases/hotfix`
 * create a HelmRelease named `podinfo-hotfix`
 * set the automation filter to `glob:hotfix-*`
-* make the CI tooling publish images from my hotfix branch to `FloHeinle/podinfo:hotfix-sha`
+* make the CI tooling publish images from my hotfix branch to `floheinle/podinfo:hotfix-sha`
 
 ### Production promotions with sem ver
 
@@ -312,10 +312,10 @@ After merging `stg` into `master` via a pull request, I would cut a release by t
 When I push the git tag, the CI will publish a new image in the `repo/app:git_tag` format:
 
 ```bash
-$ cd hack && ./ci-mock.sh -r FloHeinle/podinfo -v 0.4.10
+$ cd hack && ./ci-mock.sh -r floheinle/podinfo -v 0.4.10
 
 Successfully built f176482168f8
-Successfully tagged FloHeinle/podinfo:0.4.10
+Successfully tagged floheinle/podinfo:0.4.10
 ```
 
 If I want to automate the production deployment based on version tags, I would use `semver` filters instead of `glob`:
@@ -332,12 +332,12 @@ metadata:
 spec:
   releaseName: podinfo-prod
   chart:
-    git: git@github.com:FloHeinle/helm-operator-get-started
+    git: git@github.com:floheinle/helm-operator-get-started
     path: charts/podinfo
     ref: master
   values:
     image:
-      repository: FloHeinle/podinfo
+      repository: floheinle/podinfo
       tag: 0.4.10
     replicaCount: 3
 ```
@@ -345,9 +345,9 @@ spec:
 Now if I release a new patch, let's say `0.4.11`, Flux will automatically deploy it.
 
 ```bash
-$ cd hack && ./ci-mock.sh -r FloHeinle/podinfo -v 0.4.11
+$ cd hack && ./ci-mock.sh -r floheinle/podinfo -v 0.4.11
 
-Successfully tagged FloHeinle/podinfo:0.4.11
+Successfully tagged floheinle/podinfo:0.4.11
 ```
 
 ![gitops-semver](https://github.com/stefanprodan/openfaas-flux/blob/master/docs/screens/flux-helm-semver.png)
@@ -432,7 +432,7 @@ git commit -a -m "Add basic auth credentials to dev namespace" && git push
 Flux will apply the sealed secret on your cluster and sealed-secrets controller will then decrypt it into a
 Kubernetes secret.
 
-![SealedSecrets](https://github.com/FloHeinle/helm-operator-get-started/blob/master/diagrams/flux-helm-operator-sealed-secrets.png)
+![SealedSecrets](https://github.com/floheinle/helm-operator-get-started/blob/master/diagrams/flux-helm-operator-sealed-secrets.png)
 
 To prepare for disaster recovery you should backup the sealed-secrets controller private key with:
 
