@@ -16,7 +16,7 @@ spec:
   values:
     image:
       repository: floheinle/podinfo
-      tag: stg-9ij63o4c
+      tag: stg-w7ow0mvg
     replicaCount: 2
     hpa:
       enabled: true
