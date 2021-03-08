@@ -42,7 +42,7 @@ Parameter | Description | Default
 `hpa.requests` | target requests per second per pod | None
 `hpa.maxReplicas` | maximum pod replicas | `10`
 `image.pullPolicy` | image pull policy | `IfNotPresent`
-`image.repository` | image repository | `stefanprodan/podinfo`
+`image.repository` | image repository | `FloHeinle/podinfo`
 `image.tag` | image tag | `<VERSION>`
 `ingress.enabled` | enables ingress | `false`
 `ingress.annotations` | ingress annotations | None
